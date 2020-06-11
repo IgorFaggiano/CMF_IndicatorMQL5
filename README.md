@@ -1,15 +1,25 @@
 # CMF_IndicatorMQL5
+
 Chaikin Money Flow Indicator for MQL5 - Source
+---
 Copy and Use as you wish...
+---
 it is not 100% done, but works well as is.
 
 ```
+//https://github.com/IgorFaggiano/CMF_IndicatorMQL5
+
 #property description "Chaikin Money Flow"
 
-//--- indicator settings
 #property indicator_separate_window
 #property indicator_buffers 4
 #property indicator_plots   1
+#property indicator_level1  0
+
+#property indicator_levelstyle 0
+#property indicator_levelwidth 2
+#property indicator_levelcolor clrDarkCyan
+
 #property indicator_type1   DRAW_LINE
 #property indicator_color1  LightSeaGreen
 
@@ -46,51 +56,47 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
 {
-   int i, i2, limit;
-   double sumAdTotal;
-   long sumVolume;
-   
    if(rates_total<UsedPeriods)
       return(0);
-
-   limit = prev_calculated -1; //-1 pq é index
-   if(limit<0) limit=0;
-      
+   
+   int initialPosition = prev_calculated -1;
+   if(initialPosition<0) initialPosition = 0;
+   
    if(InpVolumeType==VOLUME_TICK)
    {
-      for(i=limit;i<rates_total && !IsStopped();i++)
+      for(int pos = initialPosition;pos<=rates_total-UsedPeriods;pos++)
       {
-         sumAdTotal = 0;
-         sumVolume = 0;
+         double sumAdTotal = 0;
+         long sumVolume = 0;
          
-         for(i2 = 0; i2 < UsedPeriods && !IsStopped(); ++i2)
+         for(int iPeriod = 0; iPeriod < UsedPeriods && !IsStopped(); ++iPeriod)
          {
-            long thisTickVolume = tick_volume[i+i2];
+            long thisTickVolume = tick_volume[pos+iPeriod];
             sumVolume += thisTickVolume;
-            sumAdTotal += AD(high[i+i2], low[i+i2], close[i+i2], thisTickVolume);
+            sumAdTotal += AD(high[pos+iPeriod], low[pos+iPeriod], close[pos+iPeriod], thisTickVolume);
          }
          
-         ExtCMFBuffer[i+UsedPeriods-1] = sumAdTotal/sumVolume;
+         ExtCMFBuffer[pos+UsedPeriods-1] = sumAdTotal/sumVolume;
       }
    }
    else
    {
-      for(i=limit;i<rates_total && !IsStopped();i++)
+      for(int pos = initialPosition;pos<=rates_total-UsedPeriods;pos++)
       {
-         sumAdTotal = 0;
-         sumVolume = 0;
+         double sumAdTotal = 0;
+         long sumVolume = 0;
          
-         for(i2 = 0; i2 < UsedPeriods && !IsStopped(); ++i2)
+         for(int iPeriod = 0; iPeriod < UsedPeriods && !IsStopped(); ++iPeriod)
          {
-            long thisVolume = volume[i+i2];
-            sumVolume += thisVolume;
-            sumAdTotal += AD(high[i+i2], low[i+i2], close[i+i2], thisVolume);
+            long thisTickVolume = volume[pos+iPeriod];
+            sumVolume += thisTickVolume;
+            sumAdTotal += AD(high[pos+iPeriod], low[pos+iPeriod], close[pos+iPeriod], thisTickVolume);
          }
          
-         ExtCMFBuffer[i+UsedPeriods-1] = sumAdTotal/sumVolume;
+         ExtCMFBuffer[pos+UsedPeriods-1] = sumAdTotal/sumVolume;
       }
    }
    
-   return(rates_total);
+   return (rates_total-UsedPeriods-10);
 }
 ```
