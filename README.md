@@ -1,8 +1,10 @@
 # CMF_IndicatorMQL5
 Chaikin Money Flow Indicator for MQL5 - Source
+-
 Copy and Use as you wish...
+-
 it is not 100% done, but works well as is.
-
+-
 ```
 #property description "Chaikin Money Flow"
 
